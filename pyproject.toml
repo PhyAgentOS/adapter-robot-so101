@@ -1,6 +1,6 @@
 [project]
 name = "robots-so101"
-version = "0.1.0"
+version = "2.0.0"
 description = "SO101 Robot configuration and teleop workflow"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -10,12 +10,12 @@ authors = [{ name = "PhyAgentOS Contributors" }]
 maintainers = [{ name = "PhyAgentOS Contributors" }]
 keywords = ["robot", "so101", "feetech", "dora", "forge", "robotics"]
 dependencies = [
-	"dora-rs>=0.4.1",
+	"dora-rs>=1.0.1,<2",
 	"typer>=0.25.1",
 	"mujoco>=3.8.0",
-	"forge-common>=1.0.1,<2",
-	"forge-msgs>=1.0.1,<2",
-	"forge-robot>=1.0.1,<2",
+	"forge-common>=2.1.0,<3",
+	"forge-msgs>=2.0.0,<3",
+	"forge-robot>=2.0.0,<3",
 	"pyserial>=3.5",
 	"opencv-python>=4.13.0.92",
 	"pillow>=12.3.0",
