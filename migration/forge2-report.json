@@ -1,7 +1,6 @@
 {
   "repository": "adapter-robot-so101",
   "node_candidate_version": "2.0.0",
-  "baseline_commit": "fb6b59292366059acd10cb2439d155c4c8015cfc",
   "changes": [
     "Upgrade Forge Robot/Common/Msgs and Dora dependencies.",
     "Synchronize English/Chinese root README guidance and frozen dependencies."
