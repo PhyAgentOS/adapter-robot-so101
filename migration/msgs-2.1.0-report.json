@@ -1,0 +1,195 @@
+{
+  "repository": "adapter-robot-so101",
+  "round": "msgs-2.1.0 alignment / 2026-11-12",
+  "breaking_change": "Forge 1.x / Dora 0.4.x to Forge 2.x / Dora 1.x requires aligned Forge packages, runtime services, node peers and rebuilt artifacts. Forge families version independently. forge_msgs.v1 remains unchanged.",
+  "changes": [
+    "Update paired README deployment/version compatibility notice",
+    "Require Python forge-msgs >=2.1.0,<3 and lock public Msgs 2.1.0 / Pillow 13.0.0, preserving all other locked package versions"
+  ],
+  "lock_updates": [
+    {
+      "repo": "adapter-robot-so101",
+      "lock": "uv.lock",
+      "command": [
+        "${WORKSPACE}/.tools/bin/uv",
+        "lock",
+        "--upgrade-package",
+        "forge-msgs==2.1.0",
+        "--upgrade-package",
+        "pillow==13.0.0"
+      ],
+      "exit_code": 0,
+      "version_changes": [
+        {
+          "name": "forge-msgs",
+          "before": "2.0.0",
+          "after": "2.1.0"
+        },
+        {
+          "name": "pillow",
+          "before": "12.3.0",
+          "after": "13.0.0"
+        }
+      ]
+    }
+  ],
+  "lock_checks": [
+    {
+      "repo": "adapter-robot-so101",
+      "lock": "uv.lock",
+      "check_exit": 0
+    }
+  ],
+  "software_tests": {
+    "repo": "adapter-robot-so101",
+    "environment": "${WORKSPACE}/adapter-robot-so101/.venv/bin/python",
+    "commands": [
+      [
+        "${WORKSPACE}/.tools/bin/uv",
+        "pip",
+        "install",
+        "--python",
+        "${WORKSPACE}/adapter-robot-so101/.venv/bin/python",
+        "--no-deps",
+        "--index-url",
+        "https://pypi.org/simple",
+        "forge-msgs==2.1.0",
+        "pillow==13.0.0"
+      ],
+      [
+        "${WORKSPACE}/adapter-robot-so101/.venv/bin/python",
+        "-c",
+        "from importlib.metadata import version; import json; print(json.dumps({n:version(n) for n in ['forge-msgs','pillow','dora-rs']}))"
+      ],
+      [
+        "${WORKSPACE}/.tools/bin/uv",
+        "pip",
+        "check",
+        "--python",
+        "${WORKSPACE}/adapter-robot-so101/.venv/bin/python"
+      ],
+      [
+        "${WORKSPACE}/adapter-robot-so101/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--import-mode=importlib"
+      ]
+    ],
+    "scope": "Existing local test environment with exact public Msgs/Pillow update; platform SDK exclusions are reported, not production acceptance.",
+    "update_exit": 0,
+    "versions_exit": 0,
+    "dependency_check_exit": 0,
+    "tests_exit": 0,
+    "test_summary": [
+      "...                                                                      [100%]",
+      "3 passed in 2.22s"
+    ],
+    "installed_versions": {
+      "forge-msgs": "2.1.0",
+      "pillow": "13.0.0",
+      "dora-rs": "1.0.1"
+    }
+  },
+  "dependency_audit": {
+    "repo": "adapter-robot-so101",
+    "audit_exit": 1,
+    "findings": [
+      {
+        "name": "fsspec",
+        "version": "2026.4.0",
+        "ids": [
+          "PYSEC-2026-4217"
+        ]
+      }
+    ],
+    "skipped": []
+  },
+  "dora_run_records": [
+    {
+      "repo": "adapter-robot-so101",
+      "entry": "robots-so101",
+      "mode": "chain",
+      "command": [
+        "${WORKSPACE}/.test-env/bin/dora",
+        "run",
+        "${WORKSPACE}/validation/downstream-msgs210-20261112/runtime-blocked/robots-so101/chain/dataflow.yaml",
+        "--stop-after",
+        "4s"
+      ],
+      "includes_gateway": true,
+      "exit_code": 1,
+      "passed": false,
+      "status": "blocked / not accepted",
+      "elapsed_seconds": 0.79,
+      "error": null,
+      "scope": "Negative startup diagnostic only. Hardware endpoints were replaced with absent local devices, actions disabled, remote SSH excluded and model downloads disabled. This does not demonstrate successful node operation.",
+      "log_tail": [
+        "│   328 │   │   self.pipe_abort_read_r, self.pipe_abort_read_w = None, None    │",
+        "╰──────────────────────────────────────────────────────────────────────────────╯",
+        "SerialException: [Errno 2] could not open port /dev/codex-forge2-no-device: ",
+        "[Errno 2] No such file or directory: '/dev/codex-forge2-no-device'",
+        "---------------------------------------------------------------------------------",
+        "",
+        "",
+        "",
+        "There is 1 more consequential error. Check the `out/01a1ced0-3ca5-7925-aa7a-a414e05f690c` folder for full details.",
+        "",
+        "Location:",
+        "    binaries/cli/src/common.rs:55:17"
+      ],
+      "source_report": "runtime-blocked/robots-so101/chain/report.json",
+      "runtime_errors": [
+        "2026-11-12T08:11:56.180993Z ERROR node_failure: dora_daemon::spawn::prepared: node exited with error: ExitCode(1) node_id=target dataflow_id=01a1ced0-3ca5-7925-aa7a-a414e05f690c",
+        "16:11:56 ERROR  target: daemon exited with code 1 with stderr output:",
+        "16:11:56 stdout gateway: 2026-11-12 16:11:56 - forge_gateway.cli - ERROR - gateway startup failed: Could not initiate node from environment variable. For dynamic node, please add a node id in the initialization function.",
+        "2026-11-12T08:11:56.705760Z ERROR node_failure: dora_daemon::spawn::prepared: node exited with error: ExitCode(1) node_id=gateway dataflow_id=01a1ced0-3ca5-7925-aa7a-a414e05f690c",
+        "16:11:56 ERROR  gateway: daemon exited with code 1. This error occurred because node `target` exited before connecting to dora."
+      ],
+      "local_evidence": "Full original Dora log is retained under validation/downstream-msgs210-20261112/runtime-blocked/robots-so101/chain/dora.log"
+    },
+    {
+      "repo": "adapter-robot-so101",
+      "entry": "robots-so101",
+      "mode": "single",
+      "command": [
+        "${WORKSPACE}/.test-env/bin/dora",
+        "run",
+        "${WORKSPACE}/validation/downstream-msgs210-20261112/runtime-blocked/robots-so101/single/dataflow.yaml",
+        "--stop-after",
+        "4s"
+      ],
+      "includes_gateway": false,
+      "exit_code": 1,
+      "passed": false,
+      "status": "blocked / not accepted",
+      "elapsed_seconds": 0.506,
+      "error": null,
+      "scope": "Negative startup diagnostic only. Hardware endpoints were replaced with absent local devices, actions disabled, remote SSH excluded and model downloads disabled. This does not demonstrate successful node operation.",
+      "log_tail": [
+        "│   326 │   │   #~ fcntl.fcntl(self.fd, fcntl.F_SETFL, 0)  # set blocking      │",
+        "│   327 │   │                                                                  │",
+        "│   328 │   │   self.pipe_abort_read_r, self.pipe_abort_read_w = None, None    │",
+        "╰──────────────────────────────────────────────────────────────────────────────╯",
+        "SerialException: [Errno 2] could not open port /dev/codex-forge2-no-device: ",
+        "[Errno 2] No such file or directory: '/dev/codex-forge2-no-device'",
+        "---------------------------------------------------------------------------------",
+        "",
+        "",
+        "",
+        "Location:",
+        "    binaries/cli/src/common.rs:55:17"
+      ],
+      "source_report": "runtime-blocked/robots-so101/single/report.json",
+      "runtime_errors": [
+        "2026-11-12T08:11:55.881640Z ERROR node_failure: dora_daemon::spawn::prepared: node exited with error: ExitCode(1) node_id=target dataflow_id=01a1ced0-3aa8-7ed4-8cb4-1234d5208c09",
+        "16:11:55 ERROR  target: daemon exited with code 1 with stderr output:"
+      ],
+      "local_evidence": "Full original Dora log is retained under validation/downstream-msgs210-20261112/runtime-blocked/robots-so101/single/dora.log"
+    }
+  ],
+  "remaining": "Independent existing fsspec 2026.4.0 audit finding PYSEC-2026-4217; not introduced by this Msgs/Pillow update.",
+  "acceptance": "Pending; software checks, fake/dummy backends and negative prerequisite records are scoped evidence only. Every new multi-node graph contains adapter-forge-gateway.",
+  "gitlab_sync": "Not performed; follows completed acceptance.",
+  "log_publication": "Original logs remain in the local validation workspace. This public report publishes reviewed commands, outcomes, assertions and limitations only."
+}
