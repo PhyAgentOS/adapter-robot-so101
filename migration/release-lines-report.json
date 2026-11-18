@@ -15,16 +15,15 @@
     "artifacts": [
       {
         "name": "robots_so101-1.0.0-py3-none-any.whl",
-        "size": 19943,
-        "sha256": "31072a8895e74726afc53bfd264662465e7050d0b2121137d640d26ee8f48273"
+        "size": 19943
       },
       {
         "name": "robots_so101-1.0.0.tar.gz",
-        "size": 16001,
-        "sha256": "234fdb871443799ac57af923196d0021d3316f1f7f28c5c04142fc3dc78a40ba"
+        "size": 16001
       }
     ]
   },
+  "source_profile_scope": "Local candidate worktrees; proposed maintenance changes are not deployed or merged yet. Full checksums and raw logs remain in the local workspace.",
   "source_profiles": [
     {
       "repo": "PhyAgentOS/adapter-robot-so101",
