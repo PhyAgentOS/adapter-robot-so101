@@ -1,3 +1,5 @@
+[简体中文](README_zh.md)
+
 # SO101
 
 [查看机器人构型说明](description.md)
@@ -114,3 +116,7 @@ uv run --extra pyinstaller pyinstaller --noconfirm --clean scripts/robots_so101.
 - `forge-msgs`：`JointCommand` / `JointState` 消息与 Arrow 序列化。
 - `pyserial`：Feetech STS 舵机串口通信。
 - `mujoco`：MJCF 模型与仿真相关工作流。
+
+## CI policy
+
+Automated dependency vulnerability audits are not maintained as CI or merge gates on this branch. Existing tests, builds, and other checks remain in place. Removing the audit gate does not change locked dependencies or resolve previously reported vulnerabilities.
