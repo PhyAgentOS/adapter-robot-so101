@@ -130,3 +130,7 @@ uv run --extra pyinstaller pyinstaller --noconfirm --clean scripts/robots_so101.
 本分支准备节点版本 `2.0.0`，适配 Dora 1.x，迁移验证锁定 Dora `1.0.1`。使用正式 Forge 2.x 分发包；Common 至少为 `2.1.0`。此次更新包括依赖锁文件与各独立可执行入口。
 
 每轮报告必须列出仓库、改动和测试证据，包括各节点的 `dora run` 记录，以及包含 `adapter-forge-gateway` 的串联测试。缺少硬件或模型的验收项保持待验证。源码 PR 不等于正式发布；整体验收通过后再同步 GitLab。
+
+## 依赖维护
+
+锁文件已更新至 fsspec 2026.6.0，以修复 PYSEC-2026-4217；此依赖更新不改变机器人命令或设备配置。
