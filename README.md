@@ -1,116 +1,61 @@
 # SO101
 
-[查看机器人构型说明](description.md)
+[English](README.md) | [简体中文](README_zh.md)
 
-SO101 机械臂资源与运行入口，包含 MuJoCo MJCF 描述文件、真机 dora 节点、串口工具和 PyInstaller 单文件打包脚本。
+SO101 robot assets, a Dora hardware node, serial-port tools and a PyInstaller executable.
 
-## 目录结构
+## Setup and commands
 
-```text
-.
-|- assets/
-|  |- mjcf/
-|     |- SO101.xml
-|- configs/
-|  |- config.example.yaml
-|- scripts/
-|  |- build_pyinstaller.sh
-|  |- robots_so101.spec
-|- src/
-|  |- robots_so101/
-|     |- main.py
-|     |- config.py
-|     |- driver.py
-|     |- feetech_bus.py
-|     |- device_tools.py
-|- pyproject.toml
-```
-
-## MJCF 资源
-
-主模型文件位于 `assets/mjcf/SO101.xml`，可作为 MuJoCo 场景或机器人节点配置的模型输入。
-
-## 配置
-
-复制 `configs/config.example.yaml` 为 `configs/config.yaml` 并按实际串口修改。配置来源优先级：
-
-1. 命令行 `--config /path/to/config.yaml`
-2. 环境变量 `SO101_NODE_CONFIG`
-3. dora dataflow 节点的 `config` / `config_path`
-
-## 运行
-
-`robots-so101` 是统一 CLI 入口。无子命令或使用 `run` 时运行节点：
+See [robot description](description.md) and `assets/mjcf/SO101.xml`. Copy `configs/config.example.yaml` to `configs/config.yaml` and set the actual serial port. Configuration precedence is `--config`, `SO101_NODE_CONFIG`, then dataflow `config`/`config_path`.
 
 ```bash
 uv sync
 uv run robots-so101 --config configs/config.yaml
-uv run robots-so101 run --config configs/config.yaml
-```
-
-串口工具与测试命令：
-
-```bash
 uv run robots-so101 list-devices --json
 uv run robots-so101 activate-devices --json
-uv run robots-so101 test --config configs/config.yaml --duration 15
 ```
 
-`list-devices` 和 `activate-devices` 仅匹配 `ttyACM*` 设备。`list-devices` 的 JSON 结构与 Piper 统一：`{"ports": [{"name", "address", "status"}]}`，其中 `name` 可直接作为串口路径使用，`status` 表示对应字符设备权限是否已是 `chmod 666`。`test` 会循环夹爪开合，用于确认串口与机械臂对应关系。`activate-devices` 会对匹配到的串口设备临时执行 `chmod 666`（Linux，需 `pkexec`）。长期推荐将用户加入 `dialout` 组：
+`robots-so101` and `robots_so101` are CLI aliases for `robots_so101.main:main`; no subcommand and `run` both start the node. Port tools match `ttyACM*`. JSON uses `ports` with `name`, `address` and `status`; status records whether permissions are already `666`. Activation uses Linux `pkexec` to change permissions temporarily; membership in `dialout` is the persistent alternative. `robots-so101 test --config configs/config.yaml --duration 15` moves the gripper: use only with the correct device and a prepared robot.
 
-```bash
-sudo usermod -aG dialout $USER
-# 注销后重新登录
-```
-
-## Python 包
-
-项目使用 `uv_build`，包模块名为 `robots_so101`，入口定义在 `pyproject.toml`：
-
-```toml
-[project.scripts]
-robots-so101 = "robots_so101.main:main"
-robots_so101 = "robots_so101.main:main"
-
-[tool.uv.build-backend]
-module-name = "robots_so101"
-```
-
-## PyInstaller 单文件打包
-
-安装打包依赖：
+## Packaging
 
 ```bash
 uv sync --extra pyinstaller
-```
-
-执行打包脚本，产物位于 `dist/robots_so101`：
-
-```bash
-chmod +x scripts/build_pyinstaller.sh
 ./scripts/build_pyinstaller.sh
+./dist/robots_so101 --help
 ```
 
-也可以直接运行 PyInstaller：
+The `uv_build` module is `robots_so101`. The PyInstaller spec is `scripts/robots_so101.spec`; add genuinely missing runtime imports to `hiddenimports`. Dependencies include Dora, Forge robot/message APIs, `pyserial` and MuJoCo. See [license](LICENSE) and repository notices.
+
+## Versioned releases
+
+**Mandatory tag-first release rule:** merge the version/lock change, create an annotated version tag on that reviewed commit, build that exact tag, validate the artifacts, then publish. Moving branch names, untagged commit IDs and replacement of published tags are not release inputs.
+
+| Release line | Source | Node/package version | Runtime |
+| --- | --- | --- | --- |
+| Forge 1.x | `stable/1.x` | `1.x`, tag `v1.X.Y` | Forge 1.x / Dora 0.4.x |
+| Forge 2.x | `main` | `2.x`, tag `v2.X.Y` | Forge 2.x / Dora 1.x |
+
+**Legacy normalization:** nodes previously at 0.x on `stable/1.x` release as **1.0.0**, retaining Forge 1.x / Dora 0.4.x dependencies and runtime behavior. Existing 1.x package versions are retained. Node/package majors now follow the Forge compatibility line; a 0.x tag is rejected.
+
+Run **Build versioned release** from `main` for either line. First merge the version/lock changes into the selected source branch, then create an unused **annotated** tag on that reviewed commit. The tag must match package metadata. Never move existing tags or reuse a published version. Dispatch uses the workflow's reviewed tooling with the exact tagged source, so legacy tags need not contain the new release helper.
 
 ```bash
-uv run --extra pyinstaller pyinstaller --noconfirm --clean scripts/robots_so101.spec
+# Replace with an existing, reviewed and unpublished tag matching source metadata.
+TAG=v1.0.0
+gh workflow run release.yml --ref main -f release_line=1.x -f tag="$TAG"
+TAG=v2.X.Y
+gh workflow run release.yml --ref main -f release_line=2.x -f tag="$TAG"
 ```
 
-打包后示例：
+The workflow verifies tag type, source commit, branch ancestry, source version and locked Forge/Dora compatibility. It builds source archives and wheel/sdist where supported, checks Python distribution metadata and SHA-256, and creates or attaches to a **draft GitHub Release**. Published releases/assets are not overwritten; review all build results and acceptance evidence before publishing. This workflow does not publish node packages to PyPI.
 
-```bash
-./dist/robots_so101 --config configs/config.yaml
-./dist/robots_so101 list-devices --json
-./dist/robots_so101 activate-devices --json
-```
+Set `build_binaries=true` to call the existing Ubuntu 20.04 binary workflow; its existing architecture, CLI and archive checks remain in force. You can also run `build-ubuntu20.yml` directly with `ref`, `version` and `release_line`; `ref` must be an annotated tag, not a moving branch. Binary artifacts are attached only after all selected jobs succeed.
 
-若运行时缺少模块，可在 `scripts/robots_so101.spec` 的 `hiddenimports` 中补充。
+The source archive preserves the tagged tree; external SDKs/submodules, model downloads and site configuration remain separate prerequisites. A dependency or SDK build failure is not successful release acceptance. Build success does not establish single-node or Gateway-chain `dora run`, hardware, real-model, sustained-run or rollback acceptance. Every acceptance chain must include `adapter-forge-gateway` from the same compatibility line. Forge 2.x is a **breaking change**: align Forge libraries, node versions and Dora across the entire deployment; keep 1.x on its maintenance branch.
 
-## 主要依赖
+## Dependency maintenance
 
-- `dora-rs`：dora 节点运行。
-- `robot-core`：机器人驱动协议与节点 runner。
-- `forge-msgs`：`JointCommand` / `JointState` 消息与 Arrow 序列化。
-- `pyserial`：Feetech STS 舵机串口通信。
-- `mujoco`：MJCF 模型与仿真相关工作流。
+This maintenance line uses Forge Msgs 1.3.1 and Pillow 13 while retaining Forge 1.x and Dora 0.4.x compatibility. Dependency vulnerability auditing remains enabled.
+
+The lockfile includes fsspec 2026.6.0 to address PYSEC-2026-4217. This dependency update does not change robot commands or device configuration.
